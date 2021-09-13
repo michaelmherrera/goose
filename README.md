@@ -1,14 +1,8 @@
-# goose [![Goose CI](https://github.com/pressly/goose/actions/workflows/ci.yml/badge.svg)](https://github.com/pressly/goose/actions/workflows/ci.yml) [![Go Reference](https://pkg.go.dev/badge/github.com/pressly/goose/v3.svg)](https://pkg.go.dev/github.com/pressly/goose/v3)
-
-<p align="center">
-  <img src="assets/goose_logo.png" width="125"">
-</p>
+# goose
 
 Goose is a database migration tool. Manage your database schema by creating incremental SQL changes or Go functions.
 
-Starting with [v3.0.0](https://github.com/pressly/goose/releases/tag/v3.0.0) this project adds Go module support, but maintains backwards compataibility with older `v2.x.y` tags.
-
-Goose supports [embedding SQL migrations](#embedded-sql-migrations), which means you'll need go1.16 and up. If using go1.15 or lower, then pin [v3.0.1](https://github.com/pressly/goose/releases/tag/v3.0.1).
+[![GoDoc Widget]][GoDoc] [![Travis Widget]][Travis]
 
 ### Goals of this fork
 
@@ -32,7 +26,7 @@ Goose supports [embedding SQL migrations](#embedded-sql-migrations), which means
 
 # Install
 
-    $ go get -u github.com/pressly/goose/v3/cmd/goose
+    $ go get -u github.com/pressly/goose/cmd/goose
 
 This will install the `goose` binary to your `$GOPATH/bin` directory.
 
@@ -226,44 +220,6 @@ language plpgsql;
 -- +goose StatementEnd
 ```
 
-## Embedded sql migrations
-Go 1.16 introduced new feature: [compile-time embedding](https://pkg.go.dev/embed/) files into binary and
-corresponding [filesystem abstraction](https://pkg.go.dev/io/fs/).
-
-This feature can be used only for applying existing migrations. Modifying operations such as 
-`fix` and `create` will continue to operate on OS filesystem even if using embedded files. This is expected
-behaviour because `io/fs` interfaces allows read-only access.
-
-Example usage (assuming sql migrations placed in `migrations` directory):
-```go
-package main
-
-import (
-    "database/sql"
-    "embed"
-    
-    "github.com/pressly/goose/v3"
-)
-
-//go:embed migrations/*.sql
-var embedMigrations embed.FS
-
-func main() {
-    var db *sql.DB 
-    // setup database 
-
-    goose.SetBaseFS(embedMigrations)
-
-    if err := goose.Up(db, "migrations"); err != nil {
-        panic(err)
-    }
-
-    // run app
-}
-```
-
-Note that we pass `"migrations"` as directory argument in `Up` because embedding saves directory structure.
-
 ## Go Migrations
 
 1. Create your own goose binary, see [example](./examples/go-migrations)
@@ -279,7 +235,7 @@ package migrations
 import (
 	"database/sql"
 
-	"github.com/pressly/goose/v3"
+	"github.com/pressly/goose"
 )
 
 func init() {
@@ -313,3 +269,8 @@ To help you adopt this approach, `create` will use the current timestamp as the 
 ## License
 
 Licensed under [MIT License](./LICENSE)
+
+[GoDoc]: https://godoc.org/github.com/pressly/goose
+[GoDoc Widget]: https://godoc.org/github.com/pressly/goose?status.svg
+[Travis]: https://travis-ci.org/pressly/goose
+[Travis Widget]: https://travis-ci.org/pressly/goose.svg?branch=master
